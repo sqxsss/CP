@@ -1,0 +1,40 @@
+% *=======================*
+% | Yuxuan Zhang          |
+% | University of Florida |
+% *=======================*
+% The function to create EPI slices from video
+% Empty obj for EPI slices
+function [] = createEPI(vid, samples)
+    [H, W, D, T] = size(vid);
+    [N] = size(samples);
+    NUM_SQUARES = ceil(sqrt(N));
+    slices = zeros([T, W, D, N]);
+    fprintf("Creating EPI slices\n");
+    i = 0;
+    % Generate EPI slices
+    for y=samples
+        i = i + 1;
+        vid_slice = vid(y, :, :, :);
+        slice = permute(vid_slice, [4, 2, 3, 1]);
+        % interpolate along T axis
+        RATIO = 20;
+        interpSlice = zeros(T * RATIO, W, D);
+        for x=1:W
+            for d=1:D
+                interpSlice(:, x, d) = interp1(1:T ,double(slice(:, x, d)), linspace(1, T, T * RATIO), 'linear');
+            end
+        end
+        % show the interpolated image
+        subplot(NUM_SQUARES, NUM_SQUARES, i + 1);
+        imshow(uint8(interpSlice));
+    end
+end
+% Create a video of the cube as the light source moves in the way you saw
+% it in class. 
+fprintf("Reading video\n");
+vidObj = VideoReader('video.mp4');
+vid = uint8(read(vidObj));
+[H, W, D, T] = size(vid);
+samples = 200:200:H-200;
+createEPI(vid, );
+% Batch color
